@@ -1,115 +1,458 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 
 export default function Home() {
+  const [counts, setCounts] = useState({ revenue: 0, expenses: 0, partners: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    // Reset animation state when component mounts
+    setCounts({ revenue: 0, expenses: 0, partners: 0 });
+    setIsVisible(false);
+    setHasAnimated(false);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          console.log('Stats section is visible, starting animation');
+          setIsVisible(true);
+          setHasAnimated(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3, rootMargin: '0px 0px -100px 0px' }
+    );
+
+    const statsSection = document.getElementById('stats-section');
+    if (statsSection) {
+      observer.observe(statsSection);
+    }
+
+    return () => observer.disconnect();
+  }, [hasAnimated]);
+
+  useEffect(() => {
+    if (isVisible) {
+      console.log('Starting counting animation');
+      const duration = 3000; // 3 seconds for more visible effect
+      const steps = 100; // More steps for smoother animation
+      const stepDuration = duration / steps;
+
+      const revenueTarget = 43.8;
+      const expensesTarget = 42.1;
+      const partnersTarget = 15;
+
+      const revenueStep = revenueTarget / steps;
+      const expensesStep = expensesTarget / steps;
+      const partnersStep = partnersTarget / steps;
+
+      let currentStep = 0;
+
+      const timer = setInterval(() => {
+        currentStep++;
+        const newRevenue = Math.min(revenueStep * currentStep, revenueTarget);
+        const newExpenses = Math.min(expensesStep * currentStep, expensesTarget);
+        const newPartners = Math.min(partnersStep * currentStep, partnersTarget);
+        
+        setCounts({
+          revenue: newRevenue,
+          expenses: newExpenses,
+          partners: newPartners
+        });
+
+        if (currentStep >= steps) {
+          console.log('Animation completed');
+          clearInterval(timer);
+        }
+      }, stepDuration);
+
+      return () => clearInterval(timer);
+    }
+  }, [isVisible]);
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              pages/index.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="bg-gray-50 min-h-screen font-roboto">
+      <Head>
+        <title>Akdier - Waste Recycling Partner</title>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=HK+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Garet:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Telegraf:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
+      
+      {/* Header/NavBar */}
+      <header className="bg-[#d9b071] flex items-center justify-between px-4 py-1 w-full shadow-md">
+        <div className="flex items-center space-x-3">
+          <img src="/logo.png" alt="Akdier Logo" className="h-16 w-16 rounded-full" />
+          <div className="w-px h-4 bg-white"></div>
+          <nav className="hidden md:flex space-x-4 text-xs font-semibold">
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">ГЛАВНАЯ</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">О КОМПАНИИ</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">УСЛУГИ</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">МЕДИА</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">ПРОЕКТЫ</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">ПОЛИТИКА КОМПАНИИ</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+            <a href="#" className="text-white hover:text-yellow-200 relative px-1 py-0.5 transition-all duration-200 ease-out group">
+              <span className="relative z-10">КОНТАКТЫ</span>
+              <div className="absolute inset-0 bg-white/10 rounded scale-x-0 group-hover:scale-x-100 transition-transform duration-200 ease-out origin-left"></div>
+            </a>
+          </nav>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        <div className="flex items-center space-x-2">
+          <div className="relative">
+            <input type="text" placeholder="Search..." className="rounded-full px-2 py-0.5 pl-6 border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:bg-white/20 transition-colors text-xs w-20" />
+            <svg className="absolute left-1.5 top-1/2 transform -translate-y-1/2 w-2.5 h-2.5 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <button className="bg-black text-white px-2 py-0.5 rounded-full text-xs font-medium hover:bg-gray-800 hover:text-yellow-200 transition-all duration-200 ease-out">Связаться С Нами</button>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section
+        className="relative w-full flex items-center justify-start bg-black overflow-hidden"
+        style={{ height: '720px' }}
+      >
+        <img
+          src="/hero-bg.png"
+          alt="Hero"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-80"
+          style={{ minHeight: '720px', minWidth: '100%' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
+        <div className="relative z-10 flex flex-col justify-start h-full px-8 md:px-12" style={{ paddingTop: '120px' }}>
+          <div 
+            className="text-white mb-4 tracking-widest uppercase"
+            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '15.6px' }}
+          >
+            THE BUSINESS OF TOMORROW
+          </div>
+          <h1
+            className="font-bold text-white mb-6"
+            style={{ fontFamily: 'Roboto, sans-serif', fontSize: '48.2px', lineHeight: '1.1', maxWidth: '700px' }}
+          >
+            Your trusted partner<br />
+            <span className="text-yellow-300">for waste recycling</span><br />
+            at South Kazakhstan
+          </h1>
+          <div className="flex items-center space-x-4 mt-8">
+            <button className="flex items-center border-2 border-white rounded-full px-6 py-3 text-white hover:bg-white/10 shadow-lg bg-opacity-80 backdrop-blur-md">
+              <svg className="w-7 h-7 mr-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="white" strokeWidth="2" fill="none" /><polygon points="10,8 16,12 10,16" fill="white" /></svg>
+              <span className="text-lg font-medium">Наши сотрудники о ценностях АкДиЕр</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section 
+        id="stats-section"
+        className="bg-[#0a1a3c] text-white w-full flex items-center justify-center"
+        style={{ height: '720px' }}
+      >
+        <div className="max-w-7xl mx-auto px-8 text-center">
+          <h2 
+            className="font-bold mb-8 tracking-tight"
+            style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '36px' }}
+          >
+            The year in numbers
+          </h2>
+          <div className="border-b border-white/20 mb-8" />
+          <div className="flex flex-col md:flex-row justify-between text-center mb-8 gap-8 md:gap-0">
+            <div className="flex-1">
+              <div 
+                className="font-bold mb-2"
+                style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '72px', lineHeight: '1' }}
+              >
+                ${counts.revenue.toFixed(1)}
+              </div>
+              <div className="uppercase text-lg tracking-widest font-medium mb-1">Revenue</div>
+              <div 
+                className="text-gray-300"
+                style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '14px' }}
+              >
+                million
+              </div>
+            </div>
+            <div className="flex-1">
+              <div 
+                className="font-bold mb-2"
+                style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '72px', lineHeight: '1' }}
+              >
+                ${counts.expenses.toFixed(1)}
+              </div>
+              <div className="uppercase text-lg tracking-widest font-medium mb-1">Expenses</div>
+              <div 
+                className="text-gray-300"
+                style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '14px' }}
+              >
+                million
+              </div>
+            </div>
+            <div className="flex-1">
+              <div 
+                className="font-bold mb-2"
+                style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '72px', lineHeight: '1' }}
+              >
+                {Math.round(counts.partners)}
+              </div>
+              <div className="uppercase text-lg tracking-widest font-medium mb-1">Partners</div>
+              <div 
+                className="text-gray-300"
+                style={{ fontFamily: 'HK Grotesk, sans-serif', fontSize: '14px' }}
+              >
+                organizations
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-white/20 pt-8 text-center max-w-4xl mx-auto">
+            <div 
+              className="text-white leading-relaxed"
+              style={{ fontFamily: 'Telegraf, sans-serif', fontSize: '24px' }}
+            >
+              "<span className="font-bold">AkDIEr</span> is more than a recycling company — <span className="font-bold">we are Kazakhstan's trusted partner in building a cleaner, greener, and more sustainable future</span> through innovation, responsibility, and action."
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section 
+        className="relative bg-blue-100 w-full flex items-center justify-center overflow-hidden"
+        style={{ height: '720px' }}
+      >
+        <img src="/services-bg.png" alt="Services Background" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+        <div className="relative z-10 max-w-7xl mx-auto px-8">
+          <h2 className="text-5xl font-bold text-center mb-16 tracking-tight">Our <span className="text-blue-700">Services</span></h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              { title: 'Child Custody Disputes', hasArrow: false },
+              { title: 'Division of Debts and Assets', hasArrow: true },
+              { title: 'Division of Debts and Assets', hasArrow: true },
+              { title: 'Alimony and Spousal Support', hasArrow: false },
+              { title: 'Division of Debts and Assets', hasArrow: true }
+            ].map((service, i) => (
+              <div key={i} className="bg-white rounded-2xl shadow-lg p-10 min-h-[160px] flex flex-col justify-between border border-purple-200 hover:shadow-2xl transition-shadow">
+                <div className="font-semibold text-2xl mb-4 flex items-center">
+                  {service.title}
+                  {service.hasArrow && (
+                    <svg className="w-5 h-5 ml-2 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+                </div>
+                <div className="text-gray-500 text-lg">Briefly talk about your firm's services here.</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Clients Section */}
+      <section 
+        className="bg-white w-full flex items-center justify-center overflow-hidden"
+        style={{ height: '720px' }}
+      >
+        <div className="max-w-7xl mx-auto px-8 w-full pt-4">
+          {/* Title and Line */}
+          <div className="flex items-center mb-16">
+            <h2 
+              className="text-left"
+              style={{ fontFamily: 'Red Hat Display, sans-serif', fontSize: '64px', lineHeight: '1' }}
+            >
+              Our <span className="font-bold">Clients</span>
+            </h2>
+            <div className="flex-1 ml-8 h-px bg-gray-300"></div>
+          </div>
+          
+          {/* Scrolling Clients */}
+          <div className="space-y-20">
+            {/* First Row - Moving Left */}
+            <div className="overflow-hidden">
+              <div className="flex space-x-24 animate-scroll-left">
+                {[
+                  { name: "Phases & Spaces Inc.", icon: "▲▲" },
+                  { name: "schematiq", icon: "⬡" },
+                  { name: "MEMENTO", icon: "●" },
+                  { name: "Sprig & Sky", icon: "🌿" },
+                  { name: "Chapter & Co Books", icon: "&" },
+                  { name: "CuraAid +", icon: "+" },
+                  { name: "Crowd zero", icon: "0" },
+                  { name: "Wilderness Watchers Foundation", icon: "🐦" }
+                ].map((client, i) => (
+                  <div key={`left-${i}`} className="flex items-center space-x-4 whitespace-nowrap">
+                    <span className="text-gray-600 text-3xl">{client.icon}</span>
+                    <span className="text-3xl font-semibold text-gray-700">{client.name}</span>
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {[
+                  { name: "Phases & Spaces Inc.", icon: "▲▲" },
+                  { name: "schematiq", icon: "⬡" },
+                  { name: "MEMENTO", icon: "●" },
+                  { name: "Sprig & Sky", icon: "🌿" },
+                  { name: "Chapter & Co Books", icon: "&" },
+                  { name: "CuraAid +", icon: "+" },
+                  { name: "Crowd zero", icon: "0" },
+                  { name: "Wilderness Watchers Foundation", icon: "🐦" }
+                ].map((client, i) => (
+                  <div key={`left-duplicate-${i}`} className="flex items-center space-x-4 whitespace-nowrap">
+                    <span className="text-gray-600 text-3xl">{client.icon}</span>
+                    <span className="text-3xl font-semibold text-gray-700">{client.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Second Row - Moving Right */}
+            <div className="overflow-hidden">
+              <div className="flex space-x-24 animate-scroll-right">
+                {[
+                  { name: "Wilderness Watchers Foundation", icon: "🐦" },
+                  { name: "Crowd zero", icon: "0" },
+                  { name: "CuraAid +", icon: "+" },
+                  { name: "Chapter & Co Books", icon: "&" },
+                  { name: "Sprig & Sky", icon: "🌿" },
+                  { name: "MEMENTO", icon: "●" },
+                  { name: "schematiq", icon: "⬡" },
+                  { name: "Phases & Spaces Inc.", icon: "▲▲" }
+                ].map((client, i) => (
+                  <div key={`right-${i}`} className="flex items-center space-x-4 whitespace-nowrap">
+                    <span className="text-gray-600 text-3xl">{client.icon}</span>
+                    <span className="text-3xl font-semibold text-gray-700">{client.name}</span>
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {[
+                  { name: "Wilderness Watchers Foundation", icon: "🐦" },
+                  { name: "Crowd zero", icon: "0" },
+                  { name: "CuraAid +", icon: "+" },
+                  { name: "Chapter & Co Books", icon: "&" },
+                  { name: "Sprig & Sky", icon: "🌿" },
+                  { name: "MEMENTO", icon: "●" },
+                  { name: "schematiq", icon: "⬡" },
+                  { name: "Phases & Spaces Inc.", icon: "▲▲" }
+                ].map((client, i) => (
+                  <div key={`right-duplicate-${i}`} className="flex items-center space-x-4 whitespace-nowrap">
+                    <span className="text-gray-600 text-3xl">{client.icon}</span>
+                    <span className="text-3xl font-semibold text-gray-700">{client.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer 
+        className="bg-[#0a1a3c] text-white w-full flex flex-col justify-center"
+        style={{ height: '360px' }}
+      >
+        <div className="w-full px-12 md:px-16 lg:px-20">
+          {/* Two Column Layout - Office and Business Hours */}
+          <div className="flex flex-col md:flex-row justify-start items-start mb-12 gap-16 md:gap-24">
+            {/* Left Column - Office Information */}
+            <div className="min-w-0 flex-1">
+              <div 
+                className="font-bold mb-6 text-white/90"
+                style={{ fontFamily: 'Garet, sans-serif', fontSize: '28px', letterSpacing: '0.5px' }}
+              >
+                Office
+              </div>
+              <div 
+                className="text-white/80 leading-relaxed"
+                style={{ fontFamily: 'Garet, sans-serif', fontSize: '17px' }}
+              >
+                <div className="mb-2">123 Anywhere St. Any City ST 12345</div>
+                <div className="mb-2">Tel: +123-456-7890</div>
+                <div className="mb-2">hello@reallygreatsite.com</div>
+              </div>
+            </div>
+            
+            {/* Right Column - Business Hours */}
+            <div className="min-w-0 flex-1">
+              <div 
+                className="font-bold mb-6 text-white/90"
+                style={{ fontFamily: 'Garet, sans-serif', fontSize: '28px', letterSpacing: '0.5px' }}
+              >
+                Business hours
+              </div>
+              <div 
+                className="text-white/80 leading-relaxed"
+                style={{ fontFamily: 'Garet, sans-serif', fontSize: '17px' }}
+              >
+                <div className="mb-2">Monday - Friday: 9am - 6pm</div>
+                <div className="mb-2">Saturday: 9am - 12pm</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Media Section */}
+          <div className="border-t border-white/30 pt-8">
+            <div 
+              className="font-bold mb-6 text-white/90"
+              style={{ fontFamily: 'Garet, sans-serif', fontSize: '28px', letterSpacing: '0.5px' }}
+            >
+              Get social
+            </div>
+            <div className="flex space-x-8">
+              <a href="#" className="text-white/80 hover:text-yellow-300 transition-all duration-300 transform hover:scale-110">
+                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="#" className="text-white/80 hover:text-yellow-300 transition-all duration-300 transform hover:scale-110">
+                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
       </footer>
+
+      <style jsx>{`
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        
+        @keyframes scroll-right {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+        
+        .animate-scroll-left {
+          animation: scroll-left 30s linear infinite;
+        }
+        
+        .animate-scroll-right {
+          animation: scroll-right 30s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
