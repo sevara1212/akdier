@@ -1,4 +1,21 @@
 import React, { useState, useEffect } from 'react';
+
+const TypewriterText = ({ text, speed = 50 }: { text: string; speed?: number }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayText(prev => prev + text[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, speed);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, text, speed]);
+
+  return <span>{displayText}</span>;
+};
 import Head from 'next/head';
 
 export default function Home() {
@@ -253,7 +270,10 @@ export default function Home() {
               className="text-white leading-relaxed"
               style={{ fontFamily: 'Telegraf, sans-serif', fontSize: '24px' }}
             >
-              "<span className="font-bold">AkDIEr</span> is more than a recycling company — <span className="font-bold">we are Kazakhstan's trusted partner in building a cleaner, greener, and more sustainable future</span> through innovation, responsibility, and action."
+              "<TypewriterText 
+                text="AkDIEr is more than a recycling company — we are Kazakhstan's trusted partner in building a cleaner, greener, and more sustainable future through innovation, responsibility, and action."
+                speed={30}
+              />"
             </div>
           </div>
         </div>
