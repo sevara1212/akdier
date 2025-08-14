@@ -43,8 +43,8 @@ const AnimatedAkdier = () => {
           key={index}
           className={`inline-block transition-all duration-500 ${
             index < currentChar 
-              ? 'text-yellow-300 scale-110 rotate-3' 
-              : 'text-white scale-100 rotate-0'
+              ? 'text-white scale-110 rotate-3' 
+              : 'text-white/50 scale-100 rotate-0'
           }`}
           style={{
             animationDelay: `${index * 100}ms`,
@@ -363,13 +363,14 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto px-8 w-full">
           {/* Title and Line */}
-          <div className="flex items-center justify-center mb-12">
+          <div className="flex items-center mb-12">
             <h2 
-              className="text-center"
+              className="text-left"
               style={{ fontFamily: 'Red Hat Display, sans-serif', fontSize: '48px', lineHeight: '1' }}
             >
               Our <span className="font-bold">Clients</span>
             </h2>
+            <div className="flex-1 ml-8 h-px bg-gray-300"></div>
           </div>
           
           {/* Scrolling Clients */}
