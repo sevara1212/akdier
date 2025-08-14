@@ -16,6 +16,47 @@ const TypewriterText = ({ text, speed = 50 }: { text: string; speed?: number }) 
 
   return <span>{displayText}</span>;
 };
+
+const AnimatedAkdier = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [currentChar, setCurrentChar] = useState(0);
+  const akdierText = "AkDIEr";
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isVisible && currentChar < akdierText.length) {
+      const timer = setTimeout(() => {
+        setCurrentChar(prev => prev + 1);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, currentChar, akdierText.length]);
+
+  return (
+    <span className="font-bold">
+      {akdierText.split('').map((char, index) => (
+        <span
+          key={index}
+          className={`inline-block transition-all duration-500 ${
+            index < currentChar 
+              ? 'text-yellow-300 scale-110 rotate-3' 
+              : 'text-white scale-100 rotate-0'
+          }`}
+          style={{
+            animationDelay: `${index * 100}ms`,
+            transform: index < currentChar ? 'scale(1.1) rotate(3deg)' : 'scale(1) rotate(0deg)'
+          }}
+        >
+          {char}
+        </span>
+      ))}
+    </span>
+  );
+};
 import Head from 'next/head';
 
 export default function Home() {
@@ -270,10 +311,7 @@ export default function Home() {
               className="text-white leading-relaxed"
               style={{ fontFamily: 'Telegraf, sans-serif', fontSize: '24px' }}
             >
-              "<TypewriterText 
-                text="AkDIEr is more than a recycling company — we are Kazakhstan's trusted partner in building a cleaner, greener, and more sustainable future through innovation, responsibility, and action."
-                speed={30}
-              />"
+              "<AnimatedAkdier /> is more than a recycling company — we are Kazakhstan's trusted partner in building a cleaner, greener, and more sustainable future through innovation, responsibility, and action."
             </div>
           </div>
         </div>
